@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YA&amp;DAI Software</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      #yadai-splash {
+        position: fixed; inset: 0; z-index: 9999;
+        background: #0A0A0F;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 1.5rem;
+        transition: opacity 0.4s ease;
+      }
+      #yadai-splash.fade-out { opacity: 0; pointer-events: none; }
+      #yadai-splash .brand {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 800; font-size: 2rem; letter-spacing: -0.04em;
+        background: linear-gradient(135deg, #6C63FF, #00D4AA);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      #yadai-splash .spinner {
+        width: 48px; height: 48px;
+        border: 3px solid rgba(108,99,255,0.2);
+        border-top-color: #6C63FF;
+        border-radius: 50%;
+        animation: splash-spin 0.8s linear infinite;
+      }
+      @keyframes splash-spin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="yadai-splash">
+      <div class="brand">YA&amp;DAI Software</div>
+      <div class="spinner"></div>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+    <script>
+      // Apply saved theme before render to avoid flash
+      (function() {
+        var t = localStorage.getItem('tienda_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
+    <script>
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          var s = document.getElementById('yadai-splash');
+          if (s) {
+            s.classList.add('fade-out');
+            setTimeout(function() { s.remove(); }, 400);
+          }
+        }, 600);
+      });
+    </script>
+  </body>
+</html>

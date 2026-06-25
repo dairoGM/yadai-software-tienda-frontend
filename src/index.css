@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── DARK MODE (default) ── */
+:root, [data-theme="dark"] {
+  --primary:       #6C63FF;
+  --primary-dark:  #5A52E0;
+  --primary-light: #8B85FF;
+  --accent:        #00D4AA;
+  --accent-dark:   #00B894;
+  --bg:            #0A0A0F;
+  --bg-2:          #12121A;
+  --bg-3:          #1A1A26;
+  --bg-4:          #22223A;
+  --dark:          #0A0A0F;
+  --dark-2:        #12121A;
+  --dark-3:        #1A1A26;
+  --dark-4:        #22223A;
+  --text:          #E8E8F0;
+  --text-2:        #C8C8D8;
+  --text-muted:    #8888A8;
+  --border:        rgba(108,99,255,0.2);
+  --glass:         rgba(255,255,255,0.04);
+  --glass-border:  rgba(255,255,255,0.08);
+  --card-bg:       #12121A;
+  --nav-bg:        rgba(10,10,15,0.85);
+  --input-bg:      rgba(255,255,255,0.04);
+  --input-border:  rgba(255,255,255,0.08);
+  --shadow:        rgba(0,0,0,0.4);
+}
+
+/* ── LIGHT MODE ── */
+[data-theme="light"] {
+  --bg:            #F8F8FF;
+  --bg-2:          #FFFFFF;
+  --bg-3:          #F0F0FA;
+  --bg-4:          #E8E8F5;
+  --dark:          #F8F8FF;
+  --dark-2:        #FFFFFF;
+  --dark-3:        #F0F0FA;
+  --dark-4:        #E8E8F5;
+  --text:          #1A1A2E;
+  --text-2:        #2D2D4A;
+  --text-muted:    #6666A0;
+  --border:        rgba(108,99,255,0.2);
+  --glass:         rgba(108,99,255,0.04);
+  --glass-border:  rgba(108,99,255,0.12);
+  --card-bg:       #FFFFFF;
+  --nav-bg:        rgba(248,248,255,0.9);
+  --input-bg:      rgba(108,99,255,0.04);
+  --input-border:  rgba(108,99,255,0.15);
+  --shadow:        rgba(108,99,255,0.12);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+img { max-width: 100%; display: block; }
+button { font-family: inherit; }
+
+::selection { background: var(--primary); color: white; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--dark-2); }
+::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+
+input:focus, select:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 4px rgba(108,99,255,0.1) !important;
+  outline: none;
+}
+
+select {
+  color-scheme: dark;
+}
+
+[data-theme="light"] select {
+  color-scheme: light;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  nav div[style*="flex: 1"] { display: none !important; }
+  nav button[aria-label="Menú"] { display: flex !important; }
+
+  div[style*="gridTemplateColumns: minmax(0,1fr) 360px"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Bento grid responsive ── */
+@media (max-width: 900px) {
+  .bento-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+@media (max-width: 560px) {
+  .bento-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Footer responsive ── */
+@media (max-width: 900px) {
+  footer > div:first-child {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+@media (max-width: 560px) {
+  footer > div:first-child {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Pre-footer hover ── */
+a[href^="/info"]:hover {
+  color: var(--primary) !important;
+  border-color: rgba(108,99,255,0.3) !important;
+  background: rgba(108,99,255,0.06) !important;
+}
