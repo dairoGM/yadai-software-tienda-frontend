@@ -15,6 +15,7 @@ export function ConfigProvider({ children }) {
         envios:        data.envios          || 'Envíos a domicilio',
       }))
       .catch(() => {})
+      .finally(() => window.hideSplash?.())
   }, [])
 
   return <ConfigContext.Provider value={config}>{children}</ConfigContext.Provider>

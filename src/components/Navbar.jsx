@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useTheme } from '../context/ThemeContext'
 
-const SECTIONS = ['hero', 'categorias', 'beneficios', 'productos']
+const SECTIONS = ['hero', 'categorias', 'beneficios', 'productos', 'testimonios', 'contacto']
 
 export default function Navbar() {
   const { count } = useCart()
@@ -15,7 +15,6 @@ export default function Navbar() {
   const navigate = useNavigate()
   const isHome = loc.pathname === '/'
 
-  // Scroll-spy: only on home route
   const handleScroll = useCallback(() => {
     setScrolled(window.scrollY > 20)
     if (!isHome) return
@@ -24,6 +23,16 @@ export default function Navbar() {
       const el = document.getElementById(id)
       if (el && el.getBoundingClientRect().top <= 80) current = id
     }
+    const productosEl = document.getElementById('productos')
+    if (
+      window.location.search.includes('categoria=') &&
+      productosEl &&
+      productosEl.getBoundingClientRect().top <= window.innerHeight
+    ) {
+      current = 'productos'
+    }
+    const nearBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 60
+    if (nearBottom) current = SECTIONS[SECTIONS.length - 1]
     setActiveSection(current)
   }, [isHome])
 
@@ -39,34 +48,26 @@ export default function Navbar() {
       const el = document.getElementById(id)
       if (el) el.scrollIntoView({ behavior: 'smooth' })
     } else {
-      // Navigate to home with hash so CatalogoPage can scroll on mount
       navigate('/', { state: { scrollTo: id } })
     }
   }
 
-  // Nav links — home sections get scroll-spy, others are routes
   const links = [
-    { label: 'Inicio',      type: 'section', id: 'hero',       to: '/' },
-    { label: 'Categorías',  type: 'section', id: 'categorias', to: '/' },
-    { label: 'Beneficios',  type: 'section', id: 'beneficios', to: '/' },
-    { label: 'Productos',   type: 'section', id: 'productos',  to: '/' },
-    { label: 'Testimonios', type: 'route',   to: '/testimonios' },
-    { label: 'Contacto',    type: 'route',   to: '/contacto' },
+    { label: 'Inicio',       type: 'section', id: 'hero' },
+    { label: 'Categorías',   type: 'section', id: 'categorias' },
+    { label: 'Beneficios',   type: 'section', id: 'beneficios' },
+    { label: 'Productos',    type: 'section', id: 'productos' },
+    { label: 'Testimonios',  type: 'section', id: 'testimonios' },
+    { label: 'Contacto',     type: 'section', id: 'contacto' },
   ]
 
-  const isLinkActive = (l) => {
-    if (l.type === 'section') return isHome && activeSection === l.id
-    return loc.pathname.startsWith(l.to)
-  }
+  const isLinkActive = (l) => isHome && activeSection === l.id
 
-  const navBg = scrolled
-    ? 'rgba(10,10,15,0.95)'
-    : 'rgba(10,10,15,0.7)'
+  const navBg = scrolled ? 'rgba(10,10,15,0.95)' : 'rgba(10,10,15,0.7)'
 
   return (
     <nav style={{ ...s.nav, background: navBg }}>
       <div style={s.inner}>
-        {/* Logo */}
         <Link to="/" style={s.logo} onClick={() => handleSectionClick('hero')}>
           <div style={s.logoIcon}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -80,30 +81,19 @@ export default function Navbar() {
           </div>
         </Link>
 
-        {/* Desktop links */}
         <div style={s.links}>
           {links.map(l => {
             const active = isLinkActive(l)
-            if (l.type === 'section') {
-              return (
-                <button key={l.id} onClick={() => handleSectionClick(l.id)}
-                  style={{ ...s.link, ...(active ? s.linkActive : {}) }}>
-                  {l.label}
-                </button>
-              )
-            }
             return (
-              <Link key={l.to} to={l.to}
+              <button key={l.id} onClick={() => handleSectionClick(l.id)}
                 style={{ ...s.link, ...(active ? s.linkActive : {}) }}>
                 {l.label}
-              </Link>
+              </button>
             )
           })}
         </div>
 
-        {/* Right */}
         <div style={s.right}>
-          {/* Theme toggle */}
           <button onClick={toggle} style={s.iconBtn} aria-label="Cambiar tema" title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}>
             {theme === 'dark'
               ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -140,19 +130,11 @@ export default function Navbar() {
         <div style={s.mobileMenu}>
           {links.map(l => {
             const active = isLinkActive(l)
-            if (l.type === 'section') {
-              return (
-                <button key={l.id} onClick={() => { handleSectionClick(l.id); setMobileOpen(false) }}
-                  style={{ ...s.mobileLink, ...(active ? s.mobileLinkActive : {}) }}>
-                  {l.label}
-                </button>
-              )
-            }
             return (
-              <Link key={l.to} to={l.to} onClick={() => setMobileOpen(false)}
+              <button key={l.id} onClick={() => handleSectionClick(l.id)}
                 style={{ ...s.mobileLink, ...(active ? s.mobileLinkActive : {}) }}>
                 {l.label}
-              </Link>
+              </button>
             )
           })}
           <Link to="/carrito" onClick={() => setMobileOpen(false)} style={s.mobileLink}>

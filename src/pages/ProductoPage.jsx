@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { api } from '../api'
 import { useCart } from '../context/CartContext'
 import Stars from '../components/Stars'
+import LoadingOverlay from '../components/LoadingOverlay'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8027'
 
@@ -19,7 +20,7 @@ export default function ProductoPage() {
 
   useEffect(() => {
     setLoading(true); setImgIdx(0)
-    api.getProducto(id).then(setProducto).catch(() => setProducto(null)).finally(() => setLoading(false))
+    api.getProducto(id).then(setProducto).catch(() => setProducto(null)).finally(() => { setLoading(false); window.hideSplash?.() })
   }, [id])
 
   const inCart = items.some(i => i.id === parseInt(id))
@@ -46,11 +47,8 @@ export default function ProductoPage() {
     finally { setEnviando(false) }
   }
 
-  if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', paddingTop: 64 }}>
-      <div style={{ width: 44, height: 44, border: '3px solid rgba(108,99,255,0.2)', borderTopColor: '#6C63FF', borderRadius: '50%', animation: 'spin .7s linear infinite' }} />
-    </div>
-  )
+
+  if (loading) return <LoadingOverlay text="Cargando producto..." />
 
   if (!producto) return (
     <div style={{ textAlign: 'center', padding: '6rem 1rem', paddingTop: 'calc(64px + 4rem)', fontFamily: "'Inter',system-ui,sans-serif" }}>
@@ -78,9 +76,11 @@ export default function ProductoPage() {
             {imagenes[imgIdx]
               ? <img src={`${API}/uploads/productos/${imagenes[imgIdx].imagenName}`} alt={producto.nombre}
                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', opacity: 0.2 }}>
+              : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', opacity: 0.15 }}>
                   <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#E8E8F0" strokeWidth="1" strokeLinecap="round">
-                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21 15 16 10 5 21"/>
                   </svg>
                 </div>
             }

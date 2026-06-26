@@ -38,8 +38,10 @@ export default function Footer() {
             <p style={s.colTitle}>Tienda</p>
             <div style={s.linkList}>
               <button onClick={() => handleSection('categorias')} style={s.linkBtn}>Categorías</button>
+              <button onClick={() => handleSection('beneficios')} style={s.linkBtn}>Beneficios</button>
               <button onClick={() => handleSection('productos')} style={s.linkBtn}>Productos</button>
-              <Link to="/contacto" style={s.link}>Contacto</Link>
+              <button onClick={() => handleSection('testimonios')} style={s.linkBtn}>Testimonios</button>
+              <button onClick={() => handleSection('contacto')} style={s.linkBtn}>Contacto</button>
               <Link to="/carrito" style={s.link}>Carrito</Link>
             </div>
           </div>

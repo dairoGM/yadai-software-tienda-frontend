@@ -1,15 +1,13 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { CartProvider } from './context/CartContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { ConfigProvider } from './context/ConfigContext'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
-import CatalogoPage from './pages/CatalogoPage'
+import LandingPage from './pages/LandingPage'
 import ProductoPage from './pages/ProductoPage'
 import CarritoPage from './pages/CarritoPage'
 import CategoriasPage from './pages/CategoriasPage'
-import ContactoPage from './pages/ContactoPage'
-import TestimoniosPage from './pages/TestimoniosPage'
 import PaginaEstaticaPage from './pages/PaginaEstaticaPage'
 
 export default function App() {
@@ -19,12 +17,12 @@ export default function App() {
       <CartProvider>
         <BrowserRouter>
           <Navbar />
-          <main>
+          <main style={{ minHeight: '100vh' }}>
             <Routes>
-              <Route path="/" element={<CatalogoPage />} />
+              <Route path="/" element={<LandingPage />} />
               <Route path="/categorias" element={<CategoriasPage />} />
-              <Route path="/contacto" element={<ContactoPage />} />
-              <Route path="/testimonios" element={<TestimoniosPage />} />
+              <Route path="/testimonios" element={<Navigate to="/" replace />} />
+              <Route path="/contacto" element={<Navigate to="/" replace />} />
               <Route path="/producto/:id" element={<ProductoPage />} />
               <Route path="/carrito" element={<CarritoPage />} />
               <Route path="/info/:slug" element={<PaginaEstaticaPage />} />

@@ -1,27 +1,40 @@
 import { useState, useEffect } from 'react'
 import { api } from '../api'
 import Stars from '../components/Stars'
+import LoadingOverlay from '../components/LoadingOverlay'
+
+const PAGE_SIZE = 10
 
 export default function TestimoniosPage() {
   const [resenas, setResenas] = useState([])
+  const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
 
   useEffect(() => {
-    api.getResenas()
-      .then(setResenas)
-      .catch(() => setResenas([]))
-      .finally(() => setLoading(false))
+    api.getResenas({ page: 1, limit: PAGE_SIZE })
+      .then(res => { setResenas(res.data); setTotal(res.total) })
+      .catch(() => {})
+      .finally(() => { setLoading(false); window.hideSplash?.() })
   }, [])
+
+  const loadMore = () => {
+    const nextPage = page + 1
+    setLoadingMore(true)
+    api.getResenas({ page: nextPage, limit: PAGE_SIZE })
+      .then(res => { setResenas(prev => [...prev, ...res.data]); setPage(nextPage) })
+      .catch(() => {})
+      .finally(() => setLoadingMore(false))
+  }
 
   const promedio = resenas.length > 0
     ? (resenas.reduce((s, r) => s + r.puntuacion, 0) / resenas.length).toFixed(1)
     : null
 
-  if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', paddingTop: 64 }}>
-      <div style={{ width: 44, height: 44, border: '3px solid rgba(108,99,255,0.2)', borderTopColor: '#6C63FF', borderRadius: '50%', animation: 'spin .7s linear infinite' }} />
-    </div>
-  )
+  const hasMore = resenas.length < total
+
+  if (loading) return <LoadingOverlay />
 
   return (
     <div style={s.page}>
@@ -39,7 +52,7 @@ export default function TestimoniosPage() {
             </div>
             <div style={s.statDivider} />
             <div style={s.stat}>
-              <span style={s.statNum}>{resenas.length}</span>
+              <span style={s.statNum}>{total}</span>
               <span style={s.statLabel}>reseñas totales</span>
             </div>
             <div style={s.statDivider} />
@@ -62,43 +75,61 @@ export default function TestimoniosPage() {
           <p style={{ color: '#8888A8', fontSize: '0.9rem', marginTop: '0.5rem' }}>Sé el primero en compartir tu experiencia.</p>
         </div>
       ) : (
-        <div style={s.grid}>
-          {resenas.map((r, i) => (
-            <div key={i} style={s.card}>
-              <div style={s.cardTop}>
-                <div style={s.avatar}>{r.nombreUsuario?.[0]?.toUpperCase() || '?'}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={s.name}>
-                    {r.nombreUsuario}
-                    {r.compro && (
-                      <span style={s.verified}>
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" style={{ flexShrink: 0 }}>
-                          <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        Compra verificada
-                      </span>
-                    )}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.2rem' }}>
-                    <Stars value={r.puntuacion} size={13} />
-                    <span style={{ fontSize: '0.72rem', color: '#8888A8' }}>{r.fechaFormateada}</span>
+        <>
+          <div style={s.grid}>
+            {resenas.map((r, i) => (
+              <div key={i} style={s.card}>
+                <div style={s.cardTop}>
+                  <div style={s.avatar}>{r.nombreUsuario?.[0]?.toUpperCase() || '?'}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={s.name}>
+                      {r.nombreUsuario}
+                      {r.compro && (
+                        <span style={s.verified}>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" style={{ flexShrink: 0 }}>
+                            <polyline points="20 6 9 17 4 12"/>
+                          </svg>
+                          Compra verificada
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.2rem' }}>
+                      <Stars value={r.puntuacion} size={13} />
+                      <span style={{ fontSize: '0.72rem', color: '#8888A8' }}>{r.fechaFormateada}</span>
+                    </div>
                   </div>
                 </div>
+                {r.comentario && (
+                  <p style={s.comment}>&ldquo;{r.comentario}&rdquo;</p>
+                )}
+                <div style={s.product}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#8888A8" strokeWidth="2" strokeLinecap="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                  </svg>
+                  {r.productoNombre}
+                </div>
               </div>
+            ))}
+          </div>
 
-              {r.comentario && (
-                <p style={s.comment}>&ldquo;{r.comentario}&rdquo;</p>
-              )}
-
-              <div style={s.product}>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#8888A8" strokeWidth="2" strokeLinecap="round">
-                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                </svg>
-                {r.productoNombre}
-              </div>
-            </div>
-          ))}
-        </div>
+          {/* Ver más / contador */}
+          <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
+            {hasMore ? (
+              <button onClick={loadMore} disabled={loadingMore} style={s.loadMoreBtn}>
+                {loadingMore
+                  ? 'Cargando…'
+                  : `Ver más reseñas (${total - resenas.length} restantes)`
+                }
+              </button>
+            ) : (
+              total > PAGE_SIZE && (
+                <p style={{ color: '#8888A8', fontSize: '0.8rem', opacity: 0.7 }}>
+                  Mostrando todas las {total} reseñas
+                </p>
+              )
+            )}
+          </div>
+        </>
       )}
     </div>
   )
@@ -112,17 +143,14 @@ const s = {
   },
   hero: { textAlign: 'center', marginBottom: 'clamp(2.5rem,5vw,4rem)' },
   tag: {
-    display: 'inline-block',
-    background: 'rgba(0,212,170,0.1)',
-    border: '1px solid rgba(0,212,170,0.2)',
-    color: '#00D4AA', borderRadius: 20,
+    display: 'inline-block', background: 'rgba(0,212,170,0.1)',
+    border: '1px solid rgba(0,212,170,0.2)', color: '#00D4AA', borderRadius: 20,
     padding: '0.3rem 0.9rem', fontSize: '0.75rem', fontWeight: 700,
     letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '1rem',
   },
   title: {
-    fontFamily: "'Space Grotesk',sans-serif",
-    fontWeight: 900, fontSize: 'clamp(2rem,5vw,3.5rem)',
-    color: '#E8E8F0', letterSpacing: '-0.04em',
+    fontFamily: "'Space Grotesk',sans-serif", fontWeight: 900,
+    fontSize: 'clamp(2rem,5vw,3.5rem)', color: '#E8E8F0', letterSpacing: '-0.04em',
     background: 'linear-gradient(135deg,#E8E8F0 30%,#8888A8)',
     WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
     margin: '0 0 1rem',
@@ -131,20 +159,17 @@ const s = {
   statsRow: {
     display: 'inline-flex', alignItems: 'center', gap: '2rem',
     background: '#12121A', border: '1px solid rgba(255,255,255,0.06)',
-    borderRadius: 16, padding: '1.1rem 2rem',
-    flexWrap: 'wrap', justifyContent: 'center',
+    borderRadius: 16, padding: '1.1rem 2rem', flexWrap: 'wrap', justifyContent: 'center',
   },
   stat: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem' },
   statNum: {
-    fontFamily: "'Space Grotesk',sans-serif",
-    fontWeight: 900, fontSize: '1.6rem', color: '#E8E8F0',
-    background: 'linear-gradient(135deg,#6C63FF,#00D4AA)',
+    fontFamily: "'Space Grotesk',sans-serif", fontWeight: 900, fontSize: '1.6rem',
+    color: '#E8E8F0', background: 'linear-gradient(135deg,#6C63FF,#00D4AA)',
     WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
     lineHeight: 1,
   },
   statLabel: { fontSize: '0.72rem', color: '#8888A8', fontWeight: 500 },
   statDivider: { width: 1, height: 40, background: 'rgba(255,255,255,0.06)' },
-
   empty: { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4rem 0' },
   emptyIcon: {
     width: 72, height: 72, borderRadius: 18,
@@ -152,15 +177,9 @@ const s = {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     boxShadow: '0 12px 32px rgba(108,99,255,0.3)',
   },
-
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))',
-    gap: '1.25rem',
-  },
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '1.25rem' },
   card: {
-    background: '#12121A',
-    border: '1px solid rgba(255,255,255,0.06)',
+    background: '#12121A', border: '1px solid rgba(255,255,255,0.06)',
     borderRadius: 16, padding: '1.25rem',
     display: 'flex', flexDirection: 'column', gap: '0.85rem',
   },
@@ -178,16 +197,19 @@ const s = {
   verified: {
     display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
     background: 'rgba(0,212,170,0.1)', border: '1px solid rgba(0,212,170,0.2)',
-    color: '#00D4AA', borderRadius: 20,
-    padding: '0.15rem 0.5rem', fontSize: '0.65rem', fontWeight: 700,
+    color: '#00D4AA', borderRadius: 20, padding: '0.15rem 0.5rem',
+    fontSize: '0.65rem', fontWeight: 700,
   },
-  comment: {
-    color: '#C8C8D8', fontSize: '0.875rem', lineHeight: 1.7,
-    fontStyle: 'italic', margin: 0,
-  },
+  comment: { color: '#C8C8D8', fontSize: '0.875rem', lineHeight: 1.7, fontStyle: 'italic', margin: 0 },
   product: {
     display: 'flex', alignItems: 'center', gap: '0.4rem',
     color: '#8888A8', fontSize: '0.75rem',
     borderTop: '1px solid rgba(255,255,255,0.04)', paddingTop: '0.75rem',
+  },
+  loadMoreBtn: {
+    background: 'rgba(108,99,255,0.1)', border: '1px solid rgba(108,99,255,0.3)',
+    color: '#6C63FF', borderRadius: 12, padding: '0.75rem 2rem',
+    cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.9rem', fontWeight: 600,
+    transition: 'all .2s',
   },
 }

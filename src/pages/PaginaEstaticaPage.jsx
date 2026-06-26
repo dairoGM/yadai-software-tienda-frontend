@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { api } from '../api'
 import { useTheme } from '../context/ThemeContext'
+import LoadingOverlay from '../components/LoadingOverlay'
 
 export default function PaginaEstaticaPage() {
   const { slug } = useParams()
@@ -14,14 +15,10 @@ export default function PaginaEstaticaPage() {
     api.getPagina(slug)
       .then(setPagina)
       .catch(() => setPagina(null))
-      .finally(() => setLoading(false))
+      .finally(() => { setLoading(false); window.hideSplash?.() })
   }, [slug])
 
-  if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', paddingTop: 64 }}>
-      <div style={{ width: 44, height: 44, border: '3px solid rgba(108,99,255,0.2)', borderTopColor: '#6C63FF', borderRadius: '50%', animation: 'spin .7s linear infinite' }} />
-    </div>
-  )
+  if (loading) return <LoadingOverlay text="Cargando página..." />
 
   if (!pagina) return (
     <div style={{ textAlign: 'center', padding: 'calc(64px + 4rem) 1rem', fontFamily: "'Inter',system-ui,sans-serif" }}>

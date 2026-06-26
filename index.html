@@ -11,36 +11,51 @@
     <style>
       #yadai-splash {
         position: fixed; inset: 0; z-index: 9999;
-        background: #0A0A0F;
+        background: var(--bg, #0A0A0F);
         display: flex; flex-direction: column;
-        align-items: center; justify-content: center; gap: 1.5rem;
-        transition: opacity 0.4s ease;
+        align-items: center; justify-content: center; gap: 1.25rem;
+        transition: opacity 0.35s ease;
       }
       #yadai-splash.fade-out { opacity: 0; pointer-events: none; }
+      #yadai-splash .splash-logo {
+        width: 52px; height: 52px; border-radius: 16px;
+        background: linear-gradient(135deg, #6C63FF, #00D4AA);
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 8px 32px rgba(108,99,255,0.35);
+      }
       #yadai-splash .brand {
         font-family: 'Space Grotesk', sans-serif;
-        font-weight: 800; font-size: 2rem; letter-spacing: -0.04em;
-        background: linear-gradient(135deg, #6C63FF, #00D4AA);
+        font-weight: 700; font-size: 1.1rem;
+        background: linear-gradient(135deg, #fff, #8B85FF);
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         background-clip: text;
       }
-      #yadai-splash .spinner {
-        width: 48px; height: 48px;
-        border: 3px solid rgba(108,99,255,0.2);
-        border-top-color: #6C63FF;
-        border-radius: 50%;
-        animation: splash-spin 0.8s linear infinite;
+      #yadai-splash .splash-bar {
+        width: 120px; height: 2px;
+        background: rgba(108,99,255,0.15);
+        border-radius: 2px; overflow: hidden;
       }
-      @keyframes splash-spin {
-        from { transform: rotate(0deg); }
-        to   { transform: rotate(360deg); }
+      #yadai-splash .splash-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #6C63FF, #00D4AA);
+        animation: splash-bar 1.4s ease-in-out infinite;
+      }
+      @keyframes splash-bar {
+        0%   { transform: translateX(-100%); }
+        100% { transform: translateX(200%); }
       }
     </style>
   </head>
   <body>
     <div id="yadai-splash">
+      <div class="splash-logo">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16,18 22,12 16,6"/>
+          <polyline points="8,6 2,12 8,18"/>
+        </svg>
+      </div>
       <div class="brand">YA&amp;DAI Software</div>
-      <div class="spinner"></div>
+      <div class="splash-bar"><div class="splash-bar-fill"></div></div>
     </div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
@@ -52,15 +67,15 @@
       })();
     </script>
     <script>
-      window.addEventListener('load', function() {
-        setTimeout(function() {
-          var s = document.getElementById('yadai-splash');
-          if (s) {
-            s.classList.add('fade-out');
-            setTimeout(function() { s.remove(); }, 400);
-          }
-        }, 600);
-      });
+      // Splash se cierra llamando window.hideSplash() desde React
+      window.hideSplash = function() {
+        var s = document.getElementById('yadai-splash');
+        if (!s) return;
+        s.classList.add('fade-out');
+        setTimeout(function() { if (s.parentNode) s.parentNode.removeChild(s); }, 380);
+      };
+      // Fallback: si React tarda más de 8s, cerrar igual
+      setTimeout(window.hideSplash, 8000);
     </script>
   </body>
 </html>

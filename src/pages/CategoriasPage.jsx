@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api'
+import LoadingOverlay from '../components/LoadingOverlay'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8027'
 
@@ -13,14 +14,10 @@ export default function CategoriasPage() {
     api.getCategorias()
       .then(setCategorias)
       .catch(() => setCategorias([]))
-      .finally(() => setLoading(false))
+      .finally(() => { setLoading(false); window.hideSplash?.() })
   }, [])
 
-  if (loading) return (
-    <div style={s.spinner}>
-      <div style={s.ring} />
-    </div>
-  )
+  if (loading) return <LoadingOverlay text="Cargando categorías..." />
 
   return (
     <div style={s.page}>
@@ -58,14 +55,16 @@ export default function CategoriasPage() {
                 {cat.imagenName
                   ? <img src={`${API}/uploads/categorias/${cat.imagenName}`} alt={cat.nombre} style={s.img} />
                   : <div style={s.imgPlaceholder}>
-                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="url(#cg)" strokeWidth="1.2" strokeLinecap="round">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="url(#cg)" strokeWidth="1" strokeLinecap="round">
                         <defs>
                           <linearGradient id="cg" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#6C63FF"/>
-                            <stop offset="100%" stopColor="#00D4AA"/>
+                            <stop offset="0%" stopColor="#6C63FF" stopOpacity="0.4"/>
+                            <stop offset="100%" stopColor="#00D4AA" stopOpacity="0.4"/>
                           </linearGradient>
                         </defs>
-                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
                       </svg>
                     </div>
                 }
